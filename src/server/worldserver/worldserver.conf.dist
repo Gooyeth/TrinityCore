@@ -2738,7 +2738,7 @@ Arena.RatingDiscardTimer = 600000
 
 #
 #    Arena.PreviousOpponentsDiscardTimer
-#        Description: Time (in milliseconds) after which ignore the previous opponents
+#        Description: Time (in milliseconds) after which the previous opponents will be ignored.
 #        Default:     120000 - (Enabled, 2 minutes - Blizzlike)
 #                     0      - (Disabled)
 
