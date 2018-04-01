@@ -926,7 +926,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
         int32 discardTime = GameTime::GetGameTimeMS() - sBattlegroundMgr->GetRatingDiscardTimer();
 
         // timer for previous opponents
-        int32 discardOpponentsTime = GameTime::GetGameTimeMS() - (2 * MINUTE * IN_MILLISECONDS);
+        int32 discardOpponentsTime = GameTime::GetGameTimeMS() - sWorld->getIntConfig(CONFIG_ARENA_PREV_OPPONENTS_DISCARD_TIMER);
 
         // we need to find 2 teams which will play next game
         GroupsQueueType::iterator itr_teams[BG_TEAMS_COUNT];
