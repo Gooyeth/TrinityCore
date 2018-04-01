@@ -33,7 +33,7 @@
 
 ArenaTeam::ArenaTeam()
     : TeamId(0), Type(0), TeamName(), CaptainGuid(), BackgroundColor(0), EmblemStyle(0), EmblemColor(0),
-    BorderStyle(0), BorderColor(0)
+    BorderStyle(0), BorderColor(0), PreviousOpponents(0)
 {
     Stats.WeekGames   = 0;
     Stats.SeasonGames = 0;
@@ -207,6 +207,7 @@ bool ArenaTeam::LoadArenaTeamFromDB(QueryResult result)
     Stats.SeasonGames = fields[12].GetUInt16();
     Stats.SeasonWins  = fields[13].GetUInt16();
     Stats.Rank        = fields[14].GetUInt32();
+    PreviousOpponents = fields[15].GetUInt32();
 
     return true;
 }
@@ -925,6 +926,11 @@ void ArenaTeam::SaveToDB()
     stmt->setUInt16(4, Stats.SeasonWins);
     stmt->setUInt32(5, Stats.Rank);
     stmt->setUInt32(6, GetId());
+    trans->Append(stmt);
+
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ARENA_TEAM_PREVOPPONENTS);
+    stmt->setUInt32(0, PreviousOpponents);
+    stmt->setUInt32(1, GetId());
     trans->Append(stmt);
 
     for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
