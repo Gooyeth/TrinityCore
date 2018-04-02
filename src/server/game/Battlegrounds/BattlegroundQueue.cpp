@@ -131,7 +131,7 @@ bool BattlegroundQueue::SelectionPool::AddGroup(GroupQueueInfo* ginfo, uint32 de
 /*********************************************************/
 
 // add group or player (grp == NULL) to bg queue with the given leader and bg specifications
-GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, BattlegroundTypeId BgTypeId, PvPDifficultyEntry const*  bracketEntry, uint8 ArenaType, bool isRated, bool isPremade, uint32 ArenaRating, uint32 MatchmakerRating, uint32 arenateamid, uint32 OpponentsArenaTeamId)
+GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, BattlegroundTypeId BgTypeId, PvPDifficultyEntry const*  bracketEntry, uint8 ArenaType, bool isRated, bool isPremade, uint32 ArenaRating, uint32 MatchmakerRating, uint32 arenateamid, uint32 PreviousOpponentsArenaTeamId)
 {
     BattlegroundBracketId bracketId = bracketEntry->GetBracketId();
 
@@ -147,7 +147,7 @@ GroupQueueInfo* BattlegroundQueue::AddGroup(Player* leader, Group* grp, Battlegr
     ginfo->Team                      = leader->GetTeam();
     ginfo->ArenaTeamRating           = ArenaRating;
     ginfo->ArenaMatchmakerRating     = MatchmakerRating;
-    ginfo->OpponentsTeamId           = OpponentsArenaTeamId;
+    ginfo->PreviousOpponentsTeamId   = PreviousOpponentsArenaTeamId;
     ginfo->OpponentsTeamRating       = 0;
     ginfo->OpponentsMatchmakerRating = 0;
 
@@ -961,7 +961,7 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
                 if (!(*itr3)->IsInvitedToBGInstanceGUID
                     && (((*itr3)->ArenaMatchmakerRating >= arenaMinRating && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating)
                         || (int32)(*itr3)->JoinTime < discardTime)
-                    && ((*itr_teams[0])->ArenaTeamId != (*itr3)->OpponentsTeamId || ((int32)(*itr3)->JoinTime < discardOpponentsTime))
+                    && ((*itr_teams[0])->ArenaTeamId != (*itr3)->PreviousOpponentsTeamId || ((int32)(*itr3)->JoinTime < discardOpponentsTime))
                     && (*itr_teams[0])->ArenaTeamId != (*itr3)->ArenaTeamId)
                 {
                     itr_teams[found++] = itr3;

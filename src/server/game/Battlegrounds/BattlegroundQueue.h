@@ -51,9 +51,9 @@ struct GroupQueueInfo                                       // stores informatio
     uint32  IsInvitedToBGInstanceGUID;                      // was invited to certain BG
     uint32  ArenaTeamRating;                                // if rated match, inited to the rating of the team
     uint32  ArenaMatchmakerRating;                          // if rated match, inited to the rating of the team
-    uint32  OpponentsTeamId;                                // for compete again
     uint32  OpponentsTeamRating;                            // for rated arena matches
     uint32  OpponentsMatchmakerRating;                      // for rated arena matches
+    uint32  PreviousOpponentsTeamId;                        // excluded from the current queue until the timer is met
 };
 
 enum BattlegroundQueueGroupTypes
