@@ -892,28 +892,33 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
         // found out the minimum and maximum ratings the newly added team should battle against
         // arenaRating is the rating of the latest joined team, or 0
         // 0 is on (automatic update call) and we must set it to team's with longest wait time
-        if (!arenaRating)
+        GroupQueueInfo* front1 = nullptr;
+        GroupQueueInfo* front2 = nullptr;
+        bool previousOpponents = false;
+        if (!m_QueuedGroups[bracket_id][BG_QUEUE_PREMADE_ALLIANCE].empty())
         {
-            GroupQueueInfo* front1 = nullptr;
-            GroupQueueInfo* front2 = nullptr;
-            if (!m_QueuedGroups[bracket_id][BG_QUEUE_PREMADE_ALLIANCE].empty())
-            {
-                front1 = m_QueuedGroups[bracket_id][BG_QUEUE_PREMADE_ALLIANCE].front();
+            front1 = m_QueuedGroups[bracket_id][BG_QUEUE_PREMADE_ALLIANCE].front();
+            previousOpponents = (front1->PreviousOpponentsTeamId > 0);
+            if (!arenaRating)
                 arenaRating = front1->ArenaMatchmakerRating;
-            }
-            if (!m_QueuedGroups[bracket_id][BG_QUEUE_PREMADE_HORDE].empty())
-            {
-                front2 = m_QueuedGroups[bracket_id][BG_QUEUE_PREMADE_HORDE].front();
+        }
+        if (!m_QueuedGroups[bracket_id][BG_QUEUE_PREMADE_HORDE].empty())
+        {
+            front2 = m_QueuedGroups[bracket_id][BG_QUEUE_PREMADE_HORDE].front();
+            previousOpponents = (front2->PreviousOpponentsTeamId > 0);
+            if (!arenaRating)
                 arenaRating = front2->ArenaMatchmakerRating;
-            }
-            if (front1 && front2)
+        }
+        if (front1 && front2)
+        {
+            if (!arenaRating)
             {
                 if (front1->JoinTime < front2->JoinTime)
                     arenaRating = front1->ArenaMatchmakerRating;
             }
-            else if (!front1 && !front2)
-                return; //queues are empty
         }
+        else if (!front1 && !front2)
+            return; //queues are empty
 
         //set rating range
         uint32 arenaMinRating = (arenaRating <= sBattlegroundMgr->GetMaxRatingDifference()) ? 0 : arenaRating - sBattlegroundMgr->GetMaxRatingDifference();
@@ -923,7 +928,11 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
         // the discard time is current_time - time_to_discard, teams that joined after that, will have their ratings taken into account
         // else leave the discard time on 0, this way all ratings will be discarded
         // this has to be signed value - when the server starts, this value would be negative and thus overflow
-        int32 discardTime = GameTime::GetGameTimeMS() - sBattlegroundMgr->GetRatingDiscardTimer();
+        int32 discardTime = sBattlegroundMgr->GetRatingDiscardTimer();
+        if (previousOpponents)
+            discardTime += sWorld->getIntConfig(CONFIG_ARENA_PREV_OPPONENTS_DISCARD_TIMER);
+
+        discardTime = GameTime::GetGameTimeMS() - discardTime;
 
         // timer for previous opponents
         int32 discardOpponentsTime = GameTime::GetGameTimeMS() - sWorld->getIntConfig(CONFIG_ARENA_PREV_OPPONENTS_DISCARD_TIMER);
@@ -959,9 +968,9 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
             for (GroupsQueueType::iterator itr3 = itr_teams[0]; itr3 != m_QueuedGroups[bracket_id][team].end(); ++itr3)
             {
                 if (!(*itr3)->IsInvitedToBGInstanceGUID
-                    && (((*itr3)->ArenaMatchmakerRating >= arenaMinRating && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating)
+                    && ((((*itr3)->ArenaMatchmakerRating >= arenaMinRating && (*itr3)->ArenaMatchmakerRating <= arenaMaxRating)
+                    && ((*itr_teams[0])->ArenaTeamId != (*itr3)->PreviousOpponentsTeamId))
                         || (int32)(*itr3)->JoinTime < discardTime)
-                    && ((*itr_teams[0])->ArenaTeamId != (*itr3)->PreviousOpponentsTeamId || ((int32)(*itr3)->JoinTime < discardOpponentsTime))
                     && (*itr_teams[0])->ArenaTeamId != (*itr3)->ArenaTeamId)
                 {
                     itr_teams[found++] = itr3;
