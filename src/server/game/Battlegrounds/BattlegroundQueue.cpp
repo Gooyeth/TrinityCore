@@ -916,6 +916,8 @@ void BattlegroundQueue::BattlegroundQueueUpdate(uint32 /*diff*/, BattlegroundTyp
                 if (front1->JoinTime < front2->JoinTime)
                     arenaRating = front1->ArenaMatchmakerRating;
             }
+
+            previousOpponents = (front1->ArenaTeamId == front2->PreviousOpponentsTeamId);
         }
         else if (!front1 && !front2)
             return; //queues are empty
